@@ -1,23 +1,21 @@
 import { createBrowserRouter } from "react-router-dom"
 import type { RouteObject } from "react-router-dom"
-// import RootLayout from './layouts/RootLayout';
 import TodoPage from "./pages/Todo"
 import LoginPage from "./pages/Login"
+import SignInPage from "./pages/SignIn"
 
 const routes: RouteObject[] = [
   {
     path: "/",
-    // element: <RootLayout />,
-    children: [
-      {
-        index: true,
-        element: <LoginPage />,
-      },
-      {
-        path: "todo",
-        element: <TodoPage />,
-      },
-    ],
+    element: <LoginPage />,
+  },
+  {
+    path: "/register",
+    element: <SignInPage />,
+  },
+  {
+    path: "/todo",
+    element: <TodoPage />,
   },
 ]
 
