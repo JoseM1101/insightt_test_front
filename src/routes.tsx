@@ -3,6 +3,8 @@ import type { RouteObject } from "react-router-dom"
 import TodoPage from "./pages/Todo"
 import LoginPage from "./pages/Login"
 import SignInPage from "./pages/SignIn"
+import ConfirmPage from "./pages/Confirm"
+import ProtectedRoute from "./components/ProtectedRoute"
 
 const routes: RouteObject[] = [
   {
@@ -14,8 +16,16 @@ const routes: RouteObject[] = [
     element: <SignInPage />,
   },
   {
+    path: "/confirm",
+    element: <ConfirmPage />,
+  },
+  {
     path: "/todo",
-    element: <TodoPage />,
+    element: (
+      <ProtectedRoute>
+        <TodoPage />
+      </ProtectedRoute>
+    ),
   },
 ]
 

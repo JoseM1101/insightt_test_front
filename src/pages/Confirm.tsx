@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate, Link as RouterLink } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import {
   Container,
   Paper,
@@ -7,27 +7,33 @@ import {
   Typography,
   TextField,
   Button,
-  Link,
+  CircularProgress,
   Alert,
 } from "@mui/material"
-import { useAuth } from "../hooks/useAuth"
+import { confirm } from "../api/auth"
 
-export default function LoginPage() {
+export default function ConfirmPage() {
   const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [code, setCode] = useState("")
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [success, setSuccess] = useState(false)
   const navigate = useNavigate()
-  const { authLogin } = useAuth()
 
-  const handleLogin = async () => {
+  const handleConfirm = async () => {
     setError("")
+    setLoading(true)
 
     try {
-      await authLogin(email, password)
-      navigate("/todo")
+      await confirm(email, code)
+      setSuccess(true)
+
+      setTimeout(() => navigate("/"), 1500)
     } catch (err: unknown) {
       console.error(err)
-      setError(err instanceof Error ? err.message : "Login failed")
+      setError(err instanceof Error ? err.message : "Confirmation failed")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -44,48 +50,38 @@ export default function LoginPage() {
     >
       <Paper elevation={3} sx={{ width: "100%", p: 4 }}>
         <Box display="flex" flexDirection="column" gap={3} alignItems="center">
-          <Typography variant="h5">Login</Typography>
+          <Typography variant="h5">Confirm Account</Typography>
 
           {error && <Alert severity="error">{error}</Alert>}
+          {success && (
+            <Alert severity="success">Account confirmed! Redirecting...</Alert>
+          )}
 
           <TextField
             label="Email"
             type="email"
-            slotProps={{
-              htmlInput: { "data-cy": "email-input" },
-            }}
             fullWidth
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
 
           <TextField
-            label="Password"
-            type="password"
-            slotProps={{
-              htmlInput: { "data-cy": "password-input" },
-            }}
+            label="Confirmation Code"
+            type="text"
             fullWidth
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
           />
 
           <Button
             variant="contained"
             color="primary"
             fullWidth
-            onClick={handleLogin}
-            data-cy="login-button"
+            onClick={handleConfirm}
+            disabled={loading || success}
           >
-            Login
+            {loading ? <CircularProgress size={24} /> : "Confirm"}
           </Button>
-
-          <Typography variant="body2" sx={{ mt: 1 }}>
-            Don't have an account?{" "}
-            <Link component={RouterLink} to="/register">
-              Sign Up
-            </Link>
-          </Typography>
         </Box>
       </Paper>
     </Container>
