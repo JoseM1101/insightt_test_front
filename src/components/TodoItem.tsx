@@ -1,5 +1,5 @@
 import { useState } from "react"
-import type { Task } from "../types"
+import type { Task, UpdateTaskData } from "../types"
 import {
   ListItem,
   Box,
@@ -15,7 +15,19 @@ import CheckIcon from "@mui/icons-material/Check"
 import CloseIcon from "@mui/icons-material/Close"
 import Modal from "./Modal"
 
-export default function TodoItem({ task }: { task: Task }) {
+interface TodoItemProps {
+  task: Task
+  onUpdate: (id: string, data: UpdateTaskData) => Promise<Task | undefined>
+  onDelete: (id: string) => Promise<Task | undefined>
+  onToggle: (id: string) => Promise<Task | undefined>
+}
+
+export default function TodoItem({
+  task,
+  onUpdate,
+  onDelete,
+  onToggle,
+}: TodoItemProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editedTitle, setEditedTitle] = useState(task.title)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -25,13 +37,14 @@ export default function TodoItem({ task }: { task: Task }) {
     setIsEditing(false)
   }
 
-  const handleConfirm = () => {
-    // later: call update task API
+  const handleConfirm = async () => {
+    if (!editedTitle.trim()) return
+    await onUpdate(task.id, { title: editedTitle })
     setIsEditing(false)
   }
 
-  const confirmDelete = () => {
-    // later: call delete task API
+  const confirmDelete = async () => {
+    await onDelete(task.id)
     setIsModalOpen(false)
   }
 
@@ -59,15 +72,25 @@ export default function TodoItem({ task }: { task: Task }) {
                 >
                   <EditIcon />
                 </IconButton>
-                <IconButton disabled={task.completed} edge="end" color="error">
-                  <DeleteIcon onClick={() => setIsModalOpen(true)} />
+                <IconButton
+                  disabled={task.completed}
+                  edge="end"
+                  color="error"
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  <DeleteIcon />
                 </IconButton>
               </>
             )}
           </Box>
         }
       >
-        <Checkbox checked={task.completed} edge="start" disabled={isEditing} />
+        <Checkbox
+          checked={task.completed}
+          edge="start"
+          disabled={isEditing}
+          onChange={() => onToggle(task.id)}
+        />
 
         {isEditing ? (
           <TextField
@@ -87,6 +110,7 @@ export default function TodoItem({ task }: { task: Task }) {
           />
         )}
       </ListItem>
+
       <Modal
         title="Delete Task?"
         open={isModalOpen}

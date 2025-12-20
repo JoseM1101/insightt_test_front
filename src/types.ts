@@ -1,8 +1,14 @@
-export interface TaskPostData {
+export interface CreateTaskData {
   title: string
-  completed: boolean
+  completed?: boolean
 }
 
-export interface Task extends TaskPostData {
+export interface UpdateTaskData {
+  title?: string
+}
+
+export interface Task {
   id: string
+  title: string
+  completed: boolean
 }
